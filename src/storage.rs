@@ -562,7 +562,7 @@ mod test {
 
         for (i, (idx, wterm)) in tests.drain(..).enumerate() {
             let storage = MemStorage::new();
-            storage.wl().entries = ents.clone();
+            storage.wl().entries.clone_from(&ents);
 
             let t = storage.term(idx);
             if t != wterm {
@@ -579,7 +579,7 @@ mod test {
             new_entry(5, 5),
             new_entry(6, 6),
         ];
-        let max_u64 = u64::max_value();
+        let max_u64 = u64::MAX;
         let mut tests = vec![
             (
                 2,
@@ -627,7 +627,7 @@ mod test {
         ];
         for (i, (lo, hi, maxsize, wentries)) in tests.drain(..).enumerate() {
             let storage = MemStorage::new();
-            storage.wl().entries = ents.clone();
+            storage.wl().entries.clone_from(&ents);
             let e = storage.entries(lo, hi, maxsize, GetEntriesContext::empty(false));
             if e != wentries {
                 panic!("#{}: expect entries {:?}, got {:?}", i, wentries, e);
@@ -672,7 +672,7 @@ mod test {
         let mut tests = vec![(2, 3, 3, 3), (3, 3, 3, 3), (4, 4, 4, 2), (5, 5, 5, 1)];
         for (i, (idx, windex, wterm, wlen)) in tests.drain(..).enumerate() {
             let storage = MemStorage::new();
-            storage.wl().entries = ents.clone();
+            storage.wl().entries.clone_from(&ents);
 
             storage.wl().compact(idx).unwrap();
             let index = storage.first_index().unwrap();
@@ -705,7 +705,7 @@ mod test {
         let ents = vec![new_entry(3, 3), new_entry(4, 4), new_entry(5, 5)];
         let nodes = vec![1, 2, 3];
         let mut conf_state = ConfState::default();
-        conf_state.voters = nodes.clone();
+        conf_state.voters.clone_from(&nodes);
 
         let unavailable = Err(RaftError::Store(
             StorageError::SnapshotTemporarilyUnavailable,
@@ -718,7 +718,7 @@ mod test {
         ];
         for (i, (idx, wresult, windex)) in tests.drain(..).enumerate() {
             let storage = MemStorage::new();
-            storage.wl().entries = ents.clone();
+            storage.wl().entries.clone_from(&ents);
             storage.wl().raft_state.hard_state.commit = idx;
             storage.wl().raft_state.hard_state.term = idx;
             storage.wl().raft_state.conf_state = conf_state.clone();
@@ -783,7 +783,7 @@ mod test {
         ];
         for (i, (entries, wentries)) in tests.drain(..).enumerate() {
             let storage = MemStorage::new();
-            storage.wl().entries = ents.clone();
+            storage.wl().entries.clone_from(&ents);
             let res = panic::catch_unwind(AssertUnwindSafe(|| storage.wl().append(&entries)));
             if let Some(wentries) = wentries {
                 let _ = res.unwrap();
